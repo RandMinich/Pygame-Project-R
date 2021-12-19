@@ -9,3 +9,6 @@ class Level:
 
     def append_object(self, object):
         self.objects.append(object)
+
+    def play(self, First_Screen):
+        First_Screen.draw(self.bgi)
