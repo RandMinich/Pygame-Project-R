@@ -12,3 +12,6 @@ class Level:
 
     def play(self, First_Screen):
         First_Screen.draw(self.bgi)
+
+    def run_level(self, screen, is_running_flag):
+        pass
