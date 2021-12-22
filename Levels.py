@@ -5,10 +5,14 @@ class Level:
     def __init__(self, gravity, background_image):
         self.bgi = Load_image.load_image(background_image)
         self.gravity = gravity
-        self.objects = []
+        self.groups = []
 
-    def append_object(self, object):
-        self.objects.append(object)
+    def append_object(self, group):
+        self.groups.append(group)
 
     def play(self, First_Screen):
-        First_Screen.draw(self.bgi)
+        running = True
+        while running:
+            First_Screen.fill(0, 0, 0)
+            First_Screen.draw(self.bgi)
+            First_Screen.flip()
