@@ -1,4 +1,6 @@
 import Load_image
+import pygame
+import game
 
 
 class Level:
@@ -6,7 +8,7 @@ class Level:
         self.bgi = Load_image.load_image(background_image)
         self.gravity = gravity
         self.objects = []
-        self.running
+        self.running = False
 
     def append_object(self, object):
         self.objects.append(object)
@@ -15,5 +17,9 @@ class Level:
         First_Screen.draw(self.bgi)
 
     def run_level(self, screen, is_running_flag):
-        while sel.running:
-           ...
+        self.running = is_running_flag
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
