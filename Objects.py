@@ -11,13 +11,19 @@ class Abstract_Object:
 
 class Abstract_Phisical_Object:
     def __init__(self, image, group, hp=100000):
-        Abstract_Object.__init__(image, group)
+        Abstract_Object.__init__(self, image, group)
         self.hp = hp
 
+    def get_damage(self, damage):
+        self.hp -= damage
 
-    def update(self, vertical_borders, horizontal_borders):
-        self.rect = self.rect.move(self.vx, self.vy)
-        if pygame.sprite.spritecollideany(self, horizontal_borders):
-            self.vy = -self.vy
-        if pygame.sprite.spritecollideany(self, vertical_borders):
-            self.vx = -self.vx
+
+class Moving_object(Abstract_Phisical_Object):
+    def get_damage(self, damage):
+        self.hp -= damage
+
+    def update(self, all_object_groups):
+        rect = self.rect.move(self.vx, self.vy)
+        if pygame.sprite.spritecollideany(self, all_object_groups):
+            rect = self.rect
+        self.rect = rect
