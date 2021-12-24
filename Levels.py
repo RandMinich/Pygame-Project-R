@@ -5,14 +5,19 @@ class Level:
     def __init__(self, gravity, background_image):
         self.bgi = Load_image.load_image(background_image)
         self.gravity = gravity
-        self.groups = []
+        self.objects = []
+        self.running = False
 
-    def append_object(self, group):
-        self.groups.append(group)
+    def append_object(self, object):
+        self.objects.append(object)
 
     def play(self, First_Screen):
-        running = True
-        while running:
-            First_Screen.fill(0, 0, 0)
-            First_Screen.draw(self.bgi)
-            First_Screen.flip()
+        First_Screen.draw(self.bgi)
+
+    def run_level(self, screen, is_running_flag):
+        self.running = is_running_flag
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
