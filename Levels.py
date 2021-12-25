@@ -1,4 +1,5 @@
 import Load_image
+import pygame
 
 
 class Level:
@@ -11,13 +12,13 @@ class Level:
     def append_object(self, object):
         self.objects.append(object)
 
-    def play(self, First_Screen):
-        First_Screen.draw(self.bgi)
-
     def run_level(self, screen, is_running_flag):
         self.running = is_running_flag
         while self.running:
+            screen.blit(self.bgi, 0, 0)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
+            for group in self.objects:
+                group.update()
+                group.draw()
