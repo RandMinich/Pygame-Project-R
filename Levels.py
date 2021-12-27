@@ -1,5 +1,10 @@
-import Load_image
 import pygame
+import pygame_gui
+
+import Load_image
+
+window_res = 800, 600
+gui_manager = pygame_gui.UIManager(window_resolution=window_res)
 
 
 class Level:
@@ -22,3 +27,21 @@ class Level:
             for group in self.objects:
                 group.update()
                 group.draw()
+
+
+class Start_screen:
+    def run(self, screen, start_pos, rect, ):
+        start_button = pygame_gui.elements.UIButton(rect, text='Start', manager=gui_manager)
+        running = True
+        new_game = False
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        if event.ui_element == start_button:
+                            new_game = True
+                            running = False
+            gui_manager.update(0.00001)
+            gui_manager.draw_ui(screen)
