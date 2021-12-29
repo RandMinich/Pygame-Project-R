@@ -12,6 +12,10 @@ class game:  # это тело игры, в него заносятся уров
     def __init__(self, size):
         self.Level_load_stack = []
         self.screen = pygame.display.set_mode(size)
+        self.up = pygame.K_w
+        self.down = pygame.K_s
+        self.left = pygame.K_a
+        self.right = pygame.K_d
 
     def add_level(self, level):
         self.Level_load_stack.append(level)
@@ -37,3 +41,6 @@ class game:  # это тело игры, в него заносятся уров
             self.left = key
         if name == 'right':
             self.right = key
+
+
+new_game = game(size)
