@@ -21,9 +21,11 @@ class game:  # это тело игры, в него заносятся уров
         self.Level_load_stack.append(level)
 
     def run(self, size_of_buttons):
-        Levels.start_window(self.screen, size_of_buttons, clock)
-        for level in self.Level_load_stack:
-            level.run_level()
+        flag = False
+        flag = Levels.start_window(self.screen, size_of_buttons, clock)
+        if flag:
+            for level in self.Level_load_stack:
+                level.run_level()
 
     def settings_of_button(self):
         self.up = pygame.K_w

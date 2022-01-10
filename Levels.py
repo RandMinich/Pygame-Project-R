@@ -10,7 +10,7 @@ def start_window(screen, button_sizes, clock):
     start_button = pygame_gui.elements.UIButton(button_sizes[0], text='Start', manager=gui_manager)
     running = True
     new_game = False
-    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Start', manager=gui_manager)
+    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit', manager=gui_manager)
     while running:
         screen.fill((0, 0, 0))
         td = clock.tick(60) / 1000.0
@@ -29,8 +29,7 @@ def start_window(screen, button_sizes, clock):
             gui_manager.update(td)
         gui_manager.draw_ui(screen)
         pygame.display.flip()
-    if new_game:
-        return None
+    return new_game
 
 
 class Level:
