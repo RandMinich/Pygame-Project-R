@@ -4,12 +4,13 @@ import pygame_gui
 import Load_image
 
 
-def run(screen, rect, clock):
+def start_window(screen, button_sizes, clock):
     window_res = 800, 600
     gui_manager = pygame_gui.UIManager(window_resolution=window_res)
-    start_button = pygame_gui.elements.UIButton(rect, text='Start', manager=gui_manager)
+    start_button = pygame_gui.elements.UIButton(button_sizes[0], text='Start', manager=gui_manager)
     running = True
     new_game = False
+    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Start', manager=gui_manager)
     while running:
         screen.fill((0, 0, 0))
         td = clock.tick(60) / 1000.0
@@ -21,6 +22,9 @@ def run(screen, rect, clock):
                     if event.ui_element == start_button:
                         new_game = True
                         running = False
+                    if event.ui_element == exit_button:
+                        running = False
+
             gui_manager.process_events(event)
             gui_manager.update(td)
         gui_manager.draw_ui(screen)

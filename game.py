@@ -20,9 +20,8 @@ class game:  # это тело игры, в него заносятся уров
     def add_level(self, level):
         self.Level_load_stack.append(level)
 
-    def run(self, size_of_button):
-        Levels.run(self.screen, size_of_button, clock)
-
+    def run(self, size_of_buttons):
+        Levels.start_window(self.screen, size_of_buttons, clock)
         for level in self.Level_load_stack:
             level.run_level()
 
@@ -41,6 +40,3 @@ class game:  # это тело игры, в него заносятся уров
             self.left = key
         if name == 'right':
             self.right = key
-
-
-new_game = game(size)
