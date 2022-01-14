@@ -1,8 +1,8 @@
 import pygame
 import pygame_gui
 
-import Objects
 import Load_image
+import Objects
 
 
 def start_window(screen, button_sizes, clock):
@@ -12,14 +12,18 @@ def start_window(screen, button_sizes, clock):
     running = True
 
     bcg_group = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
     background = pygame.sprite.Sprite()
     background.image = Load_image.load_image('file.png')
+    test_sprite = Objects.Moving_object('test.png', rows=8, columns=9, hp=100, pos=(50, 50))
+    enemies.add(test_sprite)
     background.rect = pygame.Rect(-1, -1, 2000, 20000)
     bcg_group.add(background)
     new_game = False
     exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit', manager=gui_manager)
     while running:
         bcg_group.draw(screen)
+        enemies.draw(screen)
         td = clock.tick(60) / 1000.0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -58,10 +62,37 @@ class Level:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    self.pause()
+                    if event.key == pygame.K_ESCAPE:
+                        self.pause()
             for group in self.objects:
                 group.update()
                 group.draw()
-    def pause():
-        pass
-        
+            pygame.display.flip()
+
+    def pause(self, screen):
+        non_break = True
+        buttons = [pygame.Rect(300, 300, 100, 50), pygame.Rect(300, 400, 100, 50), pygame.Rect(300, 800, 100, 100)]
+        gui_manager = pygame_gui.UIManager(window_resolution=(1000, 500))
+        start_button = pygame_gui.elements.UIButton(buttons[0], text='Continue', manager=gui_manager)
+        exit_button = pygame_gui.elements.UIButton(buttons[0], text='Exit', manager=gui_manager)
+        while non_break:
+            td = clock.tick(60) / 1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        non_break = False
+                    if event.type == pygame.USEREVENT:
+                        if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                            if event.ui_element == start_button:
+                                non_break = False
+                            if event.ui_element == exit_button:
+                                non_break = False
+                                self.running = False
+
+                    gui_manager.process_events(event)
+                    gui_manager.update(td)
+                gui_manager.draw_ui(screen)
+                pygame.display.flip()
+
