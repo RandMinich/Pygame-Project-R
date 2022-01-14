@@ -57,6 +57,11 @@ class Level:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                if event.type == pygame.KEYDOWN:
+                    self.pause()
             for group in self.objects:
                 group.update()
                 group.draw()
+    def pause():
+        pass
+        
