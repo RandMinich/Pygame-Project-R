@@ -1,29 +1,27 @@
 import pygame
 import pygame_gui
-
+import game
 import Load_image
 import Objects
+import sqlite3
 
 
-def start_window(screen, button_sizes, clock):
-    window_res = 800, 600
+def start_window(screen, button_sizes, clock, size):
+    window_res = size
     gui_manager = pygame_gui.UIManager(window_resolution=window_res)
     start_button = pygame_gui.elements.UIButton(button_sizes[0], text='Start', manager=gui_manager)
     running = True
-
+    font = pygame.font.Font('C:\Users\yuryk\PycharmProjects\Pygame-Project-R\data\BreakPassword', 50)
     bcg_group = pygame.sprite.Group()
-    enemies = pygame.sprite.Group()
     background = pygame.sprite.Sprite()
     background.image = Load_image.load_image('file.png')
-    test_sprite = Objects.Moving_object('test.png', rows=8, columns=9, hp=100, pos=(50, 50))
-    enemies.add(test_sprite)
     background.rect = pygame.Rect(-1, -1, 2000, 20000)
     bcg_group.add(background)
     new_game = False
     exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit', manager=gui_manager)
     while running:
         bcg_group.draw(screen)
-        enemies.draw(screen)
+        Game_Name = font
         td = clock.tick(60) / 1000.0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -35,7 +33,6 @@ def start_window(screen, button_sizes, clock):
                         running = False
                     if event.ui_element == exit_button:
                         running = False
-
             gui_manager.process_events(event)
             gui_manager.update(td)
         gui_manager.draw_ui(screen)
@@ -43,30 +40,80 @@ def start_window(screen, button_sizes, clock):
     return new_game
 
 
+def end_screen(screen, button_sizes, clock, dead_persons, size):
+    window_res = size
+    gui_manager = pygame_gui.UIManager(window_resolution=window_res)
+    running = True
+
+    bcg_group = pygame.sprite.Group()
+    background = pygame.sprite.Sprite()
+    background.image = Load_image.load_image('file.png')
+    background.rect = pygame.Rect(-1, -1, 2000, 20000)
+    bcg_group.add(background)
+    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit', manager=gui_manager)
+    text = ''
+
+    font = pygame.font.SysFont('Leto Text Sans', 50)
+    con = sqlite3.connect("winners.db")
+    cur = con.cursor()
+    results = cur.execute("""SELECT Name FROM winners ORDER BY Result""").fetchall()[-1:-6:-1]
+
+    while running:
+        bcg_group.draw(screen)
+        td = clock.tick(60) / 1000.0
+        for i in range(len(results)):
+            screen.blit(font.render(results[i][0], True, (0, 0, 0)), (250, 50 * (i + 2)))
+        screen.blit(font.render(text, True, (0, 0, 0)), (300, 100))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    if text == '':
+                        pass
+                    else:
+                        text = text[:-1]
+                if event.key == 13:
+                    cur.execute("""INSERT INTO winners(Name, Result) VALUES(?, ?) """, (text, dead_persons))
+                    con.commit()
+                if event.unicode in main:
+                    text += event.unicode
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == exit_button:
+                        running = False
+
+
+            gui_manager.process_events(event)
+            gui_manager.update(td)
+        gui_manager.draw_ui(screen)
+        pygame.display.flip()
+
+
 class Level:
-    def __init__(self, gravity, background_image):
+    def __init__(self, background_image):
         self.bgi = Load_image.load_image(background_image)
-        self.gravity = gravity
         self.objects = []
         self.running = False
+        self.clock = pygame.time.Clock()
 
     def append_object(self, object):
         self.objects.append(object)  # здесь должны быть группы спрайтов в качестве объектов
 
-    def run_level(self, screen, is_running_flag):
+    def run_level(self, screen, is_running_flag, weapons):
         self.running = is_running_flag
-
+        self.clock.tick(60)
         while self.running:
-            screen.blit(self.bgi, 0, 0)
+            screen.blit(self.bgi, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.pause()
+                        self.pause(screen)
             for group in self.objects:
-                group.update()
-                group.draw()
+                group.update(self.objects, weapons)
+                group.draw(screen)
             pygame.display.flip()
 
     def pause(self, screen):
@@ -74,9 +121,10 @@ class Level:
         buttons = [pygame.Rect(300, 300, 100, 50), pygame.Rect(300, 400, 100, 50), pygame.Rect(300, 800, 100, 100)]
         gui_manager = pygame_gui.UIManager(window_resolution=(1000, 500))
         start_button = pygame_gui.elements.UIButton(buttons[0], text='Continue', manager=gui_manager)
-        exit_button = pygame_gui.elements.UIButton(buttons[0], text='Exit', manager=gui_manager)
+        restart_button = pygame_gui.elements.UIButton(buttons[2], text='Restart', manager=gui_manager)
+        exit_button = pygame_gui.elements.UIButton(buttons[1], text='Exit', manager=gui_manager)
         while non_break:
-            td = clock.tick(60) / 1000.0
+            td = self.clock.tick(60) / 1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -90,9 +138,11 @@ class Level:
                             if event.ui_element == exit_button:
                                 non_break = False
                                 self.running = False
-
+                            if event.ui_element == restart_button:
+                                self.run_level(screen, is_running_flag=True, weapons=[])
                     gui_manager.process_events(event)
                     gui_manager.update(td)
                 gui_manager.draw_ui(screen)
                 pygame.display.flip()
+
 

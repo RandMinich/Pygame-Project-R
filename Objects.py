@@ -2,6 +2,8 @@ import pygame
 
 import Load_image
 import game
+import main
+
 
 
 class Abstract_Object(pygame.sprite.Sprite):
@@ -28,6 +30,7 @@ class Moving_object(Abstract_Phisical_Object):
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(pos[0], pos[1])
         self.vx = 0
+        self.is_jumping = False
         self.vy = 8
         self.inventar = []
         self.choose = 0
@@ -46,19 +49,23 @@ class Moving_object(Abstract_Phisical_Object):
         self.hp -= damage
 
     def check_collide(self, all_object_groups, weapons_enemy, rect):
-        if pygame.sprite.spritecollideany(self, all_object_groups):
-            if pygame.sprite.spritecollideany(self, weapons_enemy):
-                self.get_damage(weapons_enemy[0].damage)
-                if self.hp <= 0:
-                    pass
-            rect = self.rect
-        return rect
+        if pygame.sprite.spritecollideany(self, weapons_enemy):
+            self.get_damage(weapons_enemy[0].damage)
+            if self.hp <= 0:
+                main.dead_persons += 1
+        for group in all_object_groups:
+            if pygame.sprite.spritecollideany(self, group) and group.sprites().count(self) == 0:
+                return True
+        return False
 
     def motion(self, all_object_groups, weapons_enemy):
-        rect = self.rect.move(0, self.vy)
-        self.rect = self.check_collide(all_object_groups, weapons_enemy, rect)
+        if self.rect.bottom < 656 and self.vy // abs(self.vy) == 1:
+            rect = self.rect.move(0, self.vy)
+            if not self.check_collide(all_object_groups, weapons_enemy, rect):
+                self.rect = self.rect.move(0, self.vy)
         rect = self.rect.move(self.vx, 0)
-        self.rect = self.check_collide(all_object_groups, weapons_enemy, rect)
+        if not self.check_collide(all_object_groups, weapons_enemy, rect):
+            self.rect.move(self.vx, 0)
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
 
@@ -79,39 +86,30 @@ class Player(Moving_object):
     def event(self, events):
         for event in events:
             if event.type == pygame.KEYUP:
-                if event.key == game.new_game.left:
+                if event.key == main.game.left:
                     self.vx = 0
-                if event.key == game.new_game.right:
+                if event.key == main.game.right:
                     self.vx = 0
-                if event.key == game.new_game.up:
-                    self.vy = 0
-                if event.key == game.new_game.left:
-                    self.vy = 0
-            if event.type == pygame.KEYDOWN:
-                if event.key == game.new_game.left:
+            if event.type == pygame.KEYDOWN and self.is_jumping is False:
+                if event.key == main.game.left:
                     self.vx = self.motion_const
-                if event.key == game.new_game.right:
+                if event.key == main.game.right:
                     self.vx = self.motion_const
-                if event.key == game.new_game.up:
+                if event.key == main.game.up:
                     self.vy = 25
-                if event.key == game.new_game.left:
+                if event.key == main.game.left:
                     self.vy = 25
+                self.is_jumping = True
+
 
 
 class Weapon:
-    def __init__(self, name, damage, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        self.frames = []
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
-        self.cur_farame = 0
-        self.image = self.frames[self.cur_farame]
+    def __init__(self, name, damage, sheet):
+        self.rect = pygame.Rect(sheet)
+        self.image = sheet
         self.damage = damage
         self.name = name
+
 
 
 class Enemy(Moving_object):

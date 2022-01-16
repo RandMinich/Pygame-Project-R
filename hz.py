@@ -1,5 +1,4 @@
 import pygame
-
 import Levels
 import Load_image
 import Objects
@@ -46,7 +45,6 @@ boxhp_text = boxhp_font.render(str(boxhp), True,
 screen.blit(boxhp_text, (leftbox.rect.x + 9, leftbox.rect.y - 40))
 pygame.display.flip()
 
-# time.sleep(7)
 
 # screen.blit(background, (0, 0))
 # screen.blit(pumpkin, (652, 599))
