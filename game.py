@@ -13,34 +13,15 @@ class game:  # это тело игры, в него заносятся уров
         self.dead_persons = -1
         self.Level_load_stack = []
         self.screen = pygame.display.set_mode(size)
-        self.up = pygame.K_w
-        self.down = pygame.K_s
-        self.left = pygame.K_a
-        self.right = pygame.K_d
+        self.size = size
 
     def add_level(self, level):
         self.Level_load_stack.append(level)
 
     def run(self, size_of_buttons):
         flag = False
-        flag = Levels.start_window(self.screen, size_of_buttons, clock)
+        flag = Levels.start_window(self.screen, size_of_buttons, clock, self.size)
         if flag:
             for level in self.Level_load_stack:
-                level.run_level()
-            Levels.end_screen(self.screen, size_of_buttons, clock, self.dead_persons)
-
-    def settings_of_button(self):
-        self.up = pygame.K_w
-        self.down = pygame.K_s
-        self.right = pygame.K_a
-        self.left = pygame.K_d
-
-    def change_settings(self, name, key):
-        if name == 'up':
-            self.up = key
-        if name == 'down':
-            self.down = key
-        if name == 'left':
-            self.left = key
-        if name == 'right':
-            self.right = key
+                level.run_level(screen, True, weapons=[])
+            Levels.end_screen(self.screen, size_of_buttons, clock, self.dead_persons, self.size)

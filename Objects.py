@@ -1,9 +1,7 @@
 import pygame
 
 import Load_image
-import game
 import main
-
 
 
 class Abstract_Object(pygame.sprite.Sprite):
@@ -31,8 +29,7 @@ class Moving_object(Abstract_Phisical_Object):
         self.rect = self.rect.move(pos[0], pos[1])
         self.vx = 0
         self.is_jumping = False
-        self.vy = 8
-        self.inventar = []
+        self.vy = 9
         self.choose = 0
         self.motion_const = 10
 
@@ -64,6 +61,9 @@ class Moving_object(Abstract_Phisical_Object):
             if not self.check_collide(all_object_groups, weapons_enemy, rect):
                 self.rect = self.rect.move(0, self.vy)
         rect = self.rect.move(self.vx, 0)
+        if self.rect.bottom >= 659:
+            self.vy = 0
+            self.rect.bottom = 655
         if not self.check_collide(all_object_groups, weapons_enemy, rect):
             self.rect.move(self.vx, 0)
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
@@ -71,6 +71,7 @@ class Moving_object(Abstract_Phisical_Object):
 
     def update(self, all_object_groups, weapons_enemy):
         self.motion(all_object_groups, weapons_enemy)
+        self.vy += 5
 
     def hit(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -83,38 +84,20 @@ class Moving_object(Abstract_Phisical_Object):
 
 
 class Player(Moving_object):
-    def event(self, events):
-        for event in events:
-            if event.type == pygame.KEYUP:
-                if event.key == main.game.left:
-                    self.vx = 0
-                if event.key == main.game.right:
-                    self.vx = 0
-            if event.type == pygame.KEYDOWN and self.is_jumping is False:
-                if event.key == main.game.left:
-                    self.vx = self.motion_const
-                if event.key == main.game.right:
-                    self.vx = self.motion_const
-                if event.key == main.game.up:
-                    self.vy = 25
-                if event.key == main.game.left:
-                    self.vy = 25
-                self.is_jumping = True
-
-
-
-class Weapon:
-    def __init__(self, name, damage, sheet):
-        self.rect = pygame.Rect(sheet)
-        self.image = sheet
-        self.damage = damage
-        self.name = name
-
+    def motion(self, all_object_groups, weapons_enemy):
+        if self.rect.bottom < 656 and self.vy // abs(self.vy) == 1:
+            rect = self.rect.move(0, self.vy)
+            if not self.check_collide(all_object_groups, weapons_enemy, rect):
+                self.rect = self.rect.move(0, self.vy)
+        rect = self.rect.move(self.vx, 0)
+        if not self.check_collide(all_object_groups, weapons_enemy, rect):
+            self.rect = self.rect.move(self.vx, 0)
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
 
 
 class Enemy(Moving_object):
-    def update(self, all_object_groups, weapons_enemy, player_coords):
+    def update(self, all_object_groups, player_coords):
         vector = (player_coords[0] // abs(player_coords[0]), player_coords[1] // abs(player_coords[1]))
         self.vx = 5 * vector[0]
         self.vy = -9
-        self.motion(all_object_groups, weapons_enemy)
