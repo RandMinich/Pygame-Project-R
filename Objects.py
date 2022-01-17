@@ -47,40 +47,26 @@ class Moving_object(Abstract_Phisical_Object):
     def get_damage(self, damage):
         self.hp -= damage
 
-    def check_collide(self, all_object_groups, weapons_enemy):
-        for platforms in all_object_groups:
-            platforms = platforms.sprites()
-            if self not in platforms:
-                for p in platforms:
-                    if self.rect.bottom >= 655:
-                        self.vy = 0
-                        self.onGround = True
-                    if pygame.sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
-                        if self.vx > 0:  # если движется вправо
-                            self.rect.right = p.rect.left  # то не движется вправо
+    def check_collide(self, all_object_groups):
+        for group in all_object_groups:
+            if pygame.sprite.spritecollideany(self, group) and group.sprites().count(self) == 0:
+                return True
+        return False
 
-                        if self.vx < 0:  # если движется влево
-                            self.rect.left = p.rect.right  # то не движется влево
+    def motion(self, all_object_groups):
+        if self.rect.bottom < 656 and self.vy // abs(self.vy) == 1:
+            if not self.check_collide(all_object_groups):
+                self.rect = self.rect.move(0, self.vy)
+        if not self.check_collide(all_object_groups):
+            self.rect.move(self.vx, 0)
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
 
-                        if self.vy > 0:  # если падает вниз
-                            self.rect.bottom = p.rect.top  # то не падает вниз
-                            self.onGround = True  # и становится на что-то твердое
-                            self.vy = 0  # и энергия падения пропадает
-
-                        if self.vy < 0:  # если движется вверх
-                            self.rect.top = p.rect.bottom  # то не движется вверх
-                            self.vy = 0  # и энергия прыжка пропадает
-
-    def motion(self, all_object_groups, weapons_enemy):
-        self.rect = self.rect.move(0, self.vy)
-        self.check_collide(all_object_groups, weapons_enemy)
-        self.rect = self.rect.move(self.vx, 0)
-        self.check_collide(all_object_groups, weapons_enemy)
-
-    def update(self, all_object_groups, weapons_enemy):
-        self.motion(all_object_groups, weapons_enemy)
+    def update(self, all_object_groups):
+        self.onGround = False
+        self.motion(all_object_groups)
         if not self.onGround:
-            self.vy += 5
+            self.vy += 9
 
     def hit(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -93,42 +79,50 @@ class Moving_object(Abstract_Phisical_Object):
 
 
 class Player(Moving_object):
-    def check_collide(self, all_object_groups, weapons_enemy):
+    def check_collide(self, all_object_groups):
         for platforms in all_object_groups:
             platforms = platforms.sprites()
             if self not in platforms:
                 for p in platforms:
-                    if self.rect.bottom >= 655:
+                    if self.rect.bottom > 656:
+                        self.rect.bottom = 656
                         self.vy = 0
                         self.onGround = True
-                    if pygame.sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
-                        if self.vx > 0:  # если движется вправо
-                            self.rect.right = p.rect.left  # то не движется вправо
+                    if self.rect.left <= 0 and self.vx < 0:
+                        self.vx = 0
+                    if self.rect.left >= main.size[0] and self.vx > 0:
+                        self.vx = 0
+                    if pygame.sprite.collide_rect(self, p):  # если есть пересечение  с игроком
+                        if type(p) == Enemy:
+                            self.get_damage(1)
+                            if self.vx > 0:
+                                self.rect.right = p.rect.left - 30
+                            if self.vx < 0:
+                                self.rect.right = p.rect.right - 30
+                            if self.vy > 0:
+                                self.rect.bottom = p.rect.top - 25
+                        else:
+                            if self.vx > 0:  # если движется вправо
+                                self.rect.right = p.rect.left  # то не движется вправо
 
-                        if self.vx < 0:  # если движется влево
-                            self.rect.left = p.rect.right  # то не движется влево
+                            if self.vx < 0:  # если движется влево
+                                self.rect.left = p.rect.right  # то не движется влево
 
-                        if self.vy > 0:  # если падает вниз
-                            self.rect.bottom = p.rect.top  # то не падает вниз
-                            self.onGround = True  # и становится на что-то твердое
-                            self.vy = 0  # и энергия падения пропадает
+                            if self.vy > 0:  # если падает вниз
+                                self.rect.bottom = p.rect.top  # то не падает вниз
+                                self.onGround = True  # и становится на что-то твердое
+                                self.vy = 0  # и энергия падения пропадает
 
-                        if self.vy < 0:  # если движется вверх
-                            self.rect.top = p.rect.bottom  # то не движется вверх
-                            self.vy = 0  # и энергия прыжка пропадает
+                            if self.vy < 0:  # если движется вверх
+                                self.rect.top = p.rect.bottom  # то не движется вверх
+                                self.vy = 0  # и энергия прыжка пропадает
 
-
-    def motion(self, all_object_groups, weapons_enemy):
-        self.rect = self.rect.move(0,self.vy)
-        self.check_collide(all_object_groups, weapons_enemy)
+    def motion(self, all_object_groups):
+        self.rect = self.rect.move(0, self.vy)
+        self.check_collide(all_object_groups)
         self.rect = self.rect.move(self.vx, 0)
-        self.check_collide(all_object_groups, weapons_enemy)
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
+        self.check_collide(all_object_groups)
 
 
 class Enemy(Moving_object):
-    def update(self, all_object_groups, player_coords):
-        vector = (player_coords[0] // abs(player_coords[0]), player_coords[1] // abs(player_coords[1]))
-        self.vx = 5 * vector[0]
-        self.vy = -9
+    pass

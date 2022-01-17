@@ -67,6 +67,7 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
         for i in range(len(results)):
             screen.blit(font.render(results[i][0], True, (0, 0, 0)), (250, 100 * (i + 2)))
         screen.blit(font.render(text, True, (0, 0, 0)), (300, 100))
+        screen.blit(font.render('GAME OVER', True, (255, 255, 255)), (300, 600))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -81,7 +82,8 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
                     con.commit()
                     running = False
                 if event.unicode in main.symbols:
-                    text += event.unicode
+                    if len(text) <= 5:
+                        text += event.unicode
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
@@ -93,25 +95,29 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
 
 
 class Level:
-    def __init__(self, background_image, player_group, hole):
+    def __init__(self, background_image, player_group, hole, enemies):
         self.bgi = Load_image.load_image(background_image)
         self.objects = []
         self.running = False
         self.clock = pygame.time.Clock()
         self.player_group = player_group
         self.hole = hole
+        self.enemies = enemies
 
     def append_object(self, object):
         self.objects.append(object)  # здесь должны быть группы спрайтов в качестве объектов
 
-    def run_level(self, screen, is_running_flag, weapons):
+    def run_level(self, screen, is_running_flag):
         self.running = is_running_flag
         self.clock.tick(60)
         while self.running:
             if self.player_group.sprites()[0].hp <= 0:
                 self.running = False
             screen.blit(self.bgi, (0, 0))
+
             if pygame.sprite.collide_rect(self.player_group.sprites()[0], self.hole.sprites()[0]):
+                self.player_group.sprites()[0].rect.x = 10
+                self.player_group.sprites()[0].rect.y = 10
                 self.running = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -125,7 +131,7 @@ class Level:
                         self.player_group.sprites()[0].vx = self.player_group.sprites()[0].motion_const
                     if event.key == pygame.K_w:
                         if self.player_group.sprites()[0].onGround:
-                            self.player_group.sprites()[0].vy = -25
+                            self.player_group.sprites()[0].vy = -50
                             self.player_group.sprites()[0].is_jumping = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
@@ -133,7 +139,7 @@ class Level:
                     if event.key == pygame.K_d:
                         self.player_group.sprites()[0].vx = 0
             for group in self.objects:
-                group.update(self.objects, weapons)
+                group.update(self.objects)
                 group.draw(screen)
             pygame.display.flip()
 

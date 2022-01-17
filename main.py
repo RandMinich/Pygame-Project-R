@@ -1,6 +1,7 @@
 import pygame
-import Objects
+
 import Levels
+import Objects
 import game
 
 size = (1024, 768)
@@ -12,14 +13,19 @@ symbols = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.',
 buttons = [pygame.Rect(300, 300, 100, 50), pygame.Rect(300, 400, 100, 50), pygame.Rect(470, 500, 100, 50)]
 if __name__ == '__main__':
     game = game.game(size)
-    player = Objects.Player('Box.png', hp=10, columns=1, rows=1, pos=(100, 100))
+
+    enemy = Objects.Enemy('player.png', hp=10, columns=1, rows=1, pos=(700, 599))
+    enemy_group = pygame.sprite.Group()
+    enemy_group.add(enemy)
+
+    player = Objects.Player('player.png', hp=10, columns=1, rows=1, pos=(100, 600))
     player_g = pygame.sprite.Group()
     player_g.add(player)
-    hole1 = Objects.Moving_object('Hole.png', columns=1, rows=1, hp=1, pos=(200, 200))
+    hole1 = Objects.Moving_object('Hole.png', columns=1, rows=1, hp=1, pos=(800, 600))
 
     hole1_group = pygame.sprite.Group()
     hole1_group.add(hole1)
-    Level_2 = Levels.Level('Level 2 (Background).png', player_g,hole1_group)
+    Level_2 = Levels.Level('Level 2 (Background).png', player_g, hole1_group, enemy_group)
     screen = pygame.display.set_mode((1024, 768))
     pygame.display.set_caption('PyGame Project')
 
@@ -101,7 +107,6 @@ if __name__ == '__main__':
     # topleftbox4.rect.x = 340
     # topleftbox4.rect.y = 608
 
-
     toprightbox_group = pygame.sprite.Group()
 
     toprightbox = Objects.Moving_object('Box.png', hp=50, columns=1, rows=1, pos=(530, 358))
@@ -156,6 +161,9 @@ if __name__ == '__main__':
     # toprightbox5.rect.x = 530
     # toprightbox5.rect.y = 608
 
+
+    Level_2.append_object(enemy_group)
+
     Level_2.append_object(leftbox_group)
     Level_2.append_object(rightbox_group)
 
@@ -172,6 +180,25 @@ if __name__ == '__main__':
     Level_2.append_object(toprightbox4_group)
     Level_2.append_object(toprightbox5_group)
     Level_2.append_object(player_g)
+    Level_2.append_object(hole1_group)
 
+    Level_3 = Levels.Level('Level 2 (Background).png', player_g, hole1_group, enemy_group)
+    Level_3.append_object(topleftbox_group)
+    Level_3.append_object(topleftbox1_group)
+    Level_3.append_object(topleftbox2_group)
+    Level_3.append_object(topleftbox3_group)
+    Level_3.append_object(topleftbox4_group)
+
+    Level_3.append_object(toprightbox_group)
+    Level_3.append_object(toprightbox1_group)
+    Level_3.append_object(toprightbox2_group)
+    Level_3.append_object(toprightbox3_group)
+    Level_3.append_object(toprightbox4_group)
+    Level_3.append_object(toprightbox5_group)
+    Level_3.append_object(player_g)
+    Level_3.append_object(hole1_group)
+    Level_3.append_object(enemy_group)
+
+    game.add_level(Level_3)
     game.add_level(Level_2)
     game.run(buttons)
