@@ -9,13 +9,17 @@ symbols = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.',
            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a',
            'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
            'x', 'y', 'z', '{', '|', '}', '~']
-buttons = [pygame.Rect(300, 300, 100, 50), pygame.Rect(300, 400, 100, 50), pygame.Rect(300, 800, 100, 100)]
+buttons = [pygame.Rect(300, 300, 100, 50), pygame.Rect(300, 400, 100, 50), pygame.Rect(470, 500, 100, 50)]
 if __name__ == '__main__':
     game = game.game(size)
-    player = Objects.Player('Jack-o-lantern.png', hp=10, columns=1, rows=1, pos=(30, 30))
+    player = Objects.Player('Box.png', hp=10, columns=1, rows=1, pos=(100, 100))
     player_g = pygame.sprite.Group()
     player_g.add(player)
-    Level_2 = Levels.Level('Level 2 (Background).png', player_g)
+    hole1 = Objects.Moving_object('Hole.png', columns=1, rows=1, hp=1, pos=(200, 200))
+
+    hole1_group = pygame.sprite.Group()
+    hole1_group.add(hole1)
+    Level_2 = Levels.Level('Level 2 (Background).png', player_g,hole1_group)
     screen = pygame.display.set_mode((1024, 768))
     pygame.display.set_caption('PyGame Project')
 
@@ -25,9 +29,6 @@ if __name__ == '__main__':
     # pumpkin = pygame.transform.scale(pumpkin, (80, 60))
     # hole = pygame.image.load('Hole.png')
     # arrow = pygame.image.load('Arrow.png')
-
-    leveltext_object = Objects.Abstract_Object('Level 2 (Text).png')
-    pumpkin_object = Objects.Abstract_Object('Jack-o-lantern.png')
     # hole_object = Objects.Abstract_Object('Hole.png')
     # arrow_object = Objects.Abstract_Object('Arrow.png')
 
@@ -154,14 +155,6 @@ if __name__ == '__main__':
     toprightbox5_group.add(toprightbox5)
     # toprightbox5.rect.x = 530
     # toprightbox5.rect.y = 608
-
-    toprightbox_group.draw(screen)
-    toprightbox1_group.draw(screen)
-    toprightbox2_group.draw(screen)
-    toprightbox3_group.draw(screen)
-    toprightbox4_group.draw(screen)
-    toprightbox5_group.draw(screen)
-    pygame.display.flip()
 
     Level_2.append_object(leftbox_group)
     Level_2.append_object(rightbox_group)

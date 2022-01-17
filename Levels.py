@@ -1,5 +1,6 @@
-import sqlite3
 import os
+import sqlite3
+
 import pygame
 import pygame_gui
 
@@ -43,7 +44,7 @@ def start_window(screen, button_sizes, clock, size):
 
 
 def end_screen(screen, button_sizes, clock, dead_persons, size):
-    screen.fill((0,0,0))
+    screen.fill((0, 0, 0))
     window_res = size
     gui_manager = pygame_gui.UIManager(window_resolution=window_res)
     running = True
@@ -52,7 +53,7 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
     background.image = Load_image.load_image('file.png')
     background.rect = pygame.Rect(-1, -1, 2000, 20000)
     bcg_group.add(background)
-    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit no save', manager=gui_manager)
+    exit_button = pygame_gui.elements.UIButton(button_sizes[2], text='Exit no save', manager=gui_manager)
     text = ''
 
     font = pygame.font.Font(os.path.join('data', 'BreakPassword.otf'), 50)
@@ -92,12 +93,13 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
 
 
 class Level:
-    def __init__(self, background_image, player_group):
+    def __init__(self, background_image, player_group, hole):
         self.bgi = Load_image.load_image(background_image)
         self.objects = []
         self.running = False
         self.clock = pygame.time.Clock()
         self.player_group = player_group
+        self.hole = hole
 
     def append_object(self, object):
         self.objects.append(object)  # здесь должны быть группы спрайтов в качестве объектов
@@ -106,7 +108,11 @@ class Level:
         self.running = is_running_flag
         self.clock.tick(60)
         while self.running:
+            if self.player_group.sprites()[0].hp <= 0:
+                self.running = False
             screen.blit(self.bgi, (0, 0))
+            if pygame.sprite.collide_rect(self.player_group.sprites()[0], self.hole.sprites()[0]):
+                self.running = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -117,9 +123,10 @@ class Level:
                         self.player_group.sprites()[0].vx = -1 * self.player_group.sprites()[0].motion_const
                     if event.key == pygame.K_d:
                         self.player_group.sprites()[0].vx = self.player_group.sprites()[0].motion_const
-                    if event.key == pygame.K_w and not self.player_group.sprites()[0].is_jumping:
-                        self.player_group.sprites()[0].vy = -25
-                        self.player_group.sprites()[0].is_jumping = True
+                    if event.key == pygame.K_w:
+                        if self.player_group.sprites()[0].onGround:
+                            self.player_group.sprites()[0].vy = -25
+                            self.player_group.sprites()[0].is_jumping = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.player_group.sprites()[0].vx = 0
