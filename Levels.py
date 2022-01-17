@@ -1,5 +1,5 @@
 import sqlite3
-
+import os
 import pygame
 import pygame_gui
 
@@ -52,10 +52,10 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
     background.image = Load_image.load_image('file.png')
     background.rect = pygame.Rect(-1, -1, 2000, 20000)
     bcg_group.add(background)
-    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit', manager=gui_manager)
+    exit_button = pygame_gui.elements.UIButton(button_sizes[1], text='Exit no save', manager=gui_manager)
     text = ''
 
-    font = pygame.font.Font('C:/Users/yuryk/PycharmProjects/Pygame-Project-R/data/BreakPassword.otf', 50)
+    font = pygame.font.Font(os.path.join('data', 'BreakPassword.otf'), 50)
     con = sqlite3.connect("winners.db")
     cur = con.cursor()
     results = cur.execute("""SELECT Name FROM winners ORDER BY Result""").fetchall()[-1:-6:-1]
@@ -64,7 +64,7 @@ def end_screen(screen, button_sizes, clock, dead_persons, size):
         bcg_group.draw(screen)
         td = clock.tick(60) / 1000.0
         for i in range(len(results)):
-            screen.blit(font.render(results[i][0], True, (0, 0, 0)), (250, 50 * (i + 2)))
+            screen.blit(font.render(results[i][0], True, (0, 0, 0)), (250, 100 * (i + 2)))
         screen.blit(font.render(text, True, (0, 0, 0)), (300, 100))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
