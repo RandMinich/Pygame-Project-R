@@ -13,7 +13,7 @@ def start_window(screen, button_sizes, clock, size):
     gui_manager = pygame_gui.UIManager(window_resolution=window_res)
     start_button = pygame_gui.elements.UIButton(button_sizes[0], text='Start', manager=gui_manager)
     running = True
-    font = pygame.font.Font('C:/Users/yuryk/PycharmProjects/Pygame-Project-R/data/BreakPassword.otf', 100)
+    font = pygame.font.Font(os.path.join('data', 'BreakPassword.otf'), 100)
     bcg_group = pygame.sprite.Group()
     background = pygame.sprite.Sprite()
     background.image = Load_image.load_image('file.png')
